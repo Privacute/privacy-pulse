@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacute Privacy Pulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#141419; --cream:#F7F6F3; --cream2:#FAF9F5; --white:#fff;
+  --font-display:'Fraunces',Georgia,'Times New Roman',serif;
+  --font-body:'Hanken Grotesk',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  /* Privacute dark-violet brand. --violet-deep is the primary (text-safe on the
+     light ground); --violet is the lighter accent; the gradient runs dark->bright violet. */
+  --violet-deep:#6D28C9; --violet:#8B3FD6; --deep:#331E70; --navy:#1B2A6B;
+  --grad:linear-gradient(135deg,#6D28C9,#A855F7);
+  --line:rgba(20,20,25,.12); --line2:rgba(20,20,25,.18);
+  --muted:rgba(20,20,25,.62);
+  --radius:18px; --shadow:0 10px 40px rgba(51,30,112,.12);
+  --fs:1; /* text-size multiplier, JS-controlled */
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:var(--font-body);
+  color:var(--ink); background:var(--cream);
+  line-height:1.6; -webkit-font-smoothing:antialiased;
+  font-size:calc(17px * var(--fs));
+}
+h1,h2,h3,.display{font-family:var(--font-display);line-height:1.15;letter-spacing:-.005em}
+.wrap{max-width:720px;margin:0 auto;padding:0 20px}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:20;background:rgba(247,246,243,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;font-size:calc(20px*var(--fs));letter-spacing:-.02em}
+.brand .dot{width:26px;height:26px;border-radius:8px;background:var(--grad);box-shadow:var(--shadow)}
+.brand .name{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.a11y{display:flex;gap:6px;align-items:center}
+.a11y button{font-family:inherit;border:1px solid var(--line2);background:var(--white);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer;font-weight:600}
+.a11y button:hover{border-color:var(--violet-deep)}
+.a11y button[aria-pressed="true"]{background:var(--ink);color:var(--white);border-color:var(--ink)}
+
+/* progress */
+.progress{height:6px;background:rgba(20,20,25,.08)}
+.progress .bar{height:100%;width:0;background:var(--grad);transition:width .45s cubic-bezier(.2,.8,.2,1)}
+
+/* card */
+main{padding:34px 0 90px}
+.step{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:34px}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--violet-deep);margin:0 0 10px}
+.qcount{font-size:14px;color:var(--muted);font-weight:600;margin:0 0 18px}
+.qtext{font-size:calc(25px*var(--fs));font-weight:600;margin:0 0 8px}
+.qhelp-toggle{margin:6px 0 20px;background:none;border:none;color:var(--violet-deep);font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;padding:0;display:inline-flex;gap:6px;align-items:center}
+.qhelp{background:var(--cream2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 20px;color:var(--muted);font-size:15px}
+
+/* options */
+.opts{display:flex;flex-direction:column;gap:12px;margin:0 0 8px}
+.opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--white);border:2px solid var(--line);border-radius:14px;padding:16px 18px;cursor:pointer;font-family:inherit;font-size:calc(17px*var(--fs));color:var(--ink);transition:border-color .15s,background .15s,transform .1s}
+.opt:hover{border-color:var(--violet);background:rgba(139,63,214,.04)}
+.opt:focus-visible{outline:3px solid var(--violet-deep);outline-offset:2px}
+.opt .mark{flex:0 0 auto;width:24px;height:24px;border-radius:50%;border:2px solid var(--line2);display:grid;place-items:center;transition:all .15s}
+.opt[aria-checked="true"]{border-color:var(--violet-deep);background:rgba(109,40,201,.07)}
+.opt[aria-checked="true"] .mark{border-color:var(--violet-deep);background:var(--violet-deep)}
+.opt[aria-checked="true"] .mark::after{content:"";width:9px;height:9px;border-radius:50%;background:#fff}
+.opt.multi .mark{border-radius:7px}
+.opt.multi[aria-checked="true"] .mark::after{width:11px;height:11px;border-radius:3px}
+
+/* scale */
+.scale{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px}
+.scale button{flex:1 1 auto;min-width:52px;font-family:inherit;font-weight:600;font-size:calc(17px*var(--fs));padding:14px 0;border:2px solid var(--line);border-radius:12px;background:var(--white);cursor:pointer;color:var(--ink)}
+.scale button:hover{border-color:var(--violet)}
+.scale button[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
+.scale-ends{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:6px}
+
+/* text input */
+.field{width:100%;font-family:inherit;font-size:calc(17px*var(--fs));padding:14px 16px;border:2px solid var(--line);border-radius:12px;background:var(--white);color:var(--ink)}
+.field:focus-visible{outline:3px solid var(--violet-deep);outline-offset:1px;border-color:var(--violet-deep)}
+textarea.field{min-height:90px;resize:vertical}
+.consent{display:flex;gap:12px;align-items:flex-start;margin:16px 0 0;font-size:15px;color:var(--muted)}
+.consent input{margin-top:4px;width:20px;height:20px;accent-color:var(--violet-deep)}
+
+/* nav */
+.nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:26px}
+.btn{font-family:inherit;font-weight:600;font-size:calc(17px*var(--fs));border-radius:999px;padding:14px 26px;cursor:pointer;border:2px solid transparent;transition:transform .1s,box-shadow .15s,opacity .15s}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--grad);color:#fff;box-shadow:var(--shadow)}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed}
+.btn-ghost{background:none;color:var(--muted);border-color:var(--line2)}
+.btn-ghost:hover{color:var(--ink);border-color:var(--ink)}
+.skip{background:none;border:none;color:var(--muted);font-family:inherit;font-size:15px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.reassure{text-align:center;color:var(--muted);font-size:14px;margin:16px 0 0}
+
+/* intro + result shared */
+.hero-badge{display:inline-block;background:rgba(109,40,201,.1);color:var(--violet-deep);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:6px 14px;border-radius:999px;margin:0 0 18px}
+.lead{font-size:calc(18px*var(--fs));color:var(--muted)}
+.pills{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0}
+.pill{display:flex;align-items:center;gap:8px;background:var(--cream2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:15px;font-weight:500}
+.pill .i{width:26px;height:26px;border-radius:8px;background:var(--grad);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:700}
+
+/* score meter */
+.meter{margin:22px 0 8px}
+.meter-track{height:16px;border-radius:999px;background:rgba(20,20,25,.08);overflow:hidden}
+.meter-fill{height:100%;width:0;border-radius:999px;background:var(--grad);transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.band{display:inline-block;font-weight:700;font-family:var(--font-display);padding:6px 14px;border-radius:999px;font-size:15px;margin:16px 0 4px}
+.band.strong{background:rgba(109,40,201,.12);color:var(--violet-deep)}
+.band.mid{background:rgba(139,63,214,.14);color:var(--violet)}
+.band.low{background:rgba(92,43,46,.12);color:#8a3b3f}
+.gaps{list-style:none;padding:0;margin:14px 0 0}
+.gaps li{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
+.gaps li .g{flex:0 0 auto;width:22px;height:22px;border-radius:6px;background:rgba(139,63,214,.14);color:var(--violet);display:grid;place-items:center;font-weight:700;font-size:13px;margin-top:2px}
+.disclaimer{font-size:13px;color:var(--muted);background:var(--cream2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:22px 0 0}
+.footer{text-align:center;color:var(--muted);font-size:13px;margin:26px 0 0}
+.footer .name{font-family:var(--font-display);font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+.fade{animation:fade .4s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important}
+}
+@media (max-width:560px){
+  .step{padding:24px 20px}
+  .qtext{font-size:calc(22px*var(--fs))}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><span class="dot" aria-hidden="true"></span><span>Priva<span class="name">cute</span></span></div>
+    <div class="a11y">
+      <button id="txt" aria-pressed="false" title="Larger text">A+</button>
+      <button id="calm" aria-pressed="false" title="Reduce movement">Calm mode</button>
+    </div>
+  </div>
+</header>
+<div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+
+<main><div class="wrap"><div id="app" class="step" role="group" aria-live="polite"></div>
+<p class="footer">Made by <span class="name">Privacute</span> · Patient privacy, made provable</p>
+</div></main>
+
+<script>
+/* ============================================================
+   PRIVACUTE PERSONA SURVEY  -  configuration
+   ------------------------------------------------------------
+   Paste your Google Apps Script Web App URL between the quotes
+   below. It is the .../exec link from the script's
+   Deploy > New deployment > Web app step (see README).
+   Until it is set, the survey runs in preview mode: it shows the
+   completion screen without sending anything.
+   ============================================================ */
+const CONFIG = {
+  ENDPOINT: "",       // paste the Apps Script /exec URL here
+  CONTACT_EMAIL: ""   // where the "Reach out" button emails. Leave blank to hide the button.
+                      // NOTE: this address is visible in the public page source, so use one you are ok publishing.
+};
+
+/* Question bank. persona: 'all' or array of persona keys.
+   type: single | multi | scale | text | contact
+   scored:true  -> counts toward the readiness meter (option.s = 1 good / 0 gap)
+   research:true -> captured for persona research, not scored
+   gapLabel     -> short text shown on result if answered as a gap        */
+const PERSONAS = {
+  owner:    "Physician or practice owner",
+  manager:  "Office or practice manager",
+  hospital: "Hospital or health-system compliance",
+  security: "IT or data-security professional",
+  vendor:   "Vendor / business associate (billing, AI scribe, VA firm)"
+};
+
+const Q = [
+  { id:"role", type:"single", persona:"all", research:true,
+    eyebrow:"Let's start with you",
+    text:"Which best describes your role?",
+    help:"This is the only thing that changes what we ask next. Everyone gets a shorter, more relevant path.",
+    options:Object.entries(PERSONAS).map(([v,l])=>({label:l,value:v})) },
+
+  // ---- universal research ----
+  { id:"trigger", type:"single", persona:"all", research:true,
+    eyebrow:"What moves you",
+    text:"What would most likely make you review your patient-privacy setup?",
+    help:"There's no right answer. We're learning what actually prompts action.",
+    options:[
+      {label:"A cyber-insurance or client request for proof",value:"insurer"},
+      {label:"A breach in the news that hit close to home",value:"breach"},
+      {label:"A patient or partner asking how you protect data",value:"patient"},
+      {label:"An audit, contract, or regulation with a deadline",value:"deadline"},
+      {label:"Honestly, nothing has prompted it yet",value:"none"} ] },
+
+  { id:"posture", type:"scale", scale:5, persona:"all", research:true,
+    eyebrow:"Your read",
+    text:"How would you describe your current patient-privacy posture?",
+    ends:["Winging it","Fully handled"],
+    help:"Your gut answer is fine. This calibrates the result you'll see." },
+
+  // ---- owner / manager branch ----
+  { id:"decisionmaker", type:"single", persona:["owner","manager"], research:true,
+    eyebrow:"Ownership",
+    text:"Who owns patient privacy day to day in your practice?",
+    options:[
+      {label:"The physician / owner",value:"owner"},
+      {label:"Office or practice manager",value:"manager"},
+      {label:"An outside consultant or IT provider",value:"outside"},
+      {label:"Honestly, no one clearly owns it",value:"noone"} ] },
+
+  { id:"budget", type:"single", persona:["owner","manager","vendor"], research:true,
+    eyebrow:"Investment",
+    text:"What do you budget each month for privacy and compliance tools?",
+    help:"Ranges are fine. This helps us understand what's realistic for practices like yours.",
+    options:[
+      {label:"Under $100",value:"lt100"},
+      {label:"$100 to $500",value:"100-500"},
+      {label:"More than $500",value:"gt500"},
+      {label:"We don't budget for it yet",value:"none"} ] },
+
+  { id:"offshore", type:"single", persona:["owner","manager"], scored:true,
+    eyebrow:"Your team",
+    text:"Do remote or offshore staff handle patient information?",
+    gapLabel:"Remote/offshore staff touch patient data without confirmed safeguards",
+    options:[
+      {label:"Yes, and they work under written privacy rules",value:"yes_rules",s:1},
+      {label:"Yes, but I'm not sure what rules they follow",value:"yes_norules",s:0},
+      {label:"No remote or offshore staff",value:"no",s:1} ] },
+
+  { id:"transit_o", type:"single", persona:["owner","manager"], scored:true,
+    eyebrow:"Data in motion",
+    text:"Is patient information sent by email or text only through secure, encrypted channels?",
+    gapLabel:"Patient data may travel by unencrypted email or text",
+    options:[
+      {label:"Yes, always",value:"yes",s:1},
+      {label:"Sometimes, not consistently",value:"some",s:0},
+      {label:"No, or I'm not sure",value:"no",s:0} ] },
+
+  { id:"rest_o", type:"single", persona:["owner","manager"], scored:true,
+    eyebrow:"Data at rest",
+    text:"Are the devices that store patient data encrypted?",
+    gapLabel:"Devices holding patient data may not be encrypted",
+    options:[
+      {label:"Yes, all of them",value:"yes",s:1},
+      {label:"Some of them",value:"some",s:0},
+      {label:"No, or I'm not sure",value:"no",s:0} ] },
+
+  { id:"baa_o", type:"single", persona:["owner","manager"], scored:true,
+    eyebrow:"Partners",
+    text:"Do you have a signed agreement (BAA) with every vendor that can see patient data?",
+    gapLabel:"Vendors may touch patient data without a signed BAA",
+    options:[
+      {label:"Yes, all vendors",value:"yes",s:1},
+      {label:"Some, not all",value:"some",s:0},
+      {label:"No, or I'm not sure",value:"no",s:0} ] },
+
+  // ---- hospital compliance branch ----
+  { id:"thirdparty", type:"single", persona:["hospital"], research:true,
+    eyebrow:"Biggest exposure",
+    text:"Heading into the next year, where's your biggest third-party privacy risk?",
+    options:[
+      {label:"Vendors and business associates",value:"vendors"},
+      {label:"Offshore or remote staff",value:"offshore"},
+      {label:"Shadow AI tools staff adopt on their own",value:"ai"},
+      {label:"Unmanaged or personal devices",value:"endpoints"} ] },
+
+  { id:"ba_program", type:"single", persona:["hospital"], scored:true,
+    eyebrow:"Vendor governance",
+    text:"Do you track a current BAA and security review for every business associate, including their subcontractors?",
+    gapLabel:"BAA and subcontractor tracking has gaps",
+    options:[
+      {label:"Yes, tracked and current",value:"yes",s:1},
+      {label:"Partly, it's inconsistent",value:"partly",s:0},
+      {label:"No, or not confidently",value:"no",s:0} ] },
+
+  { id:"dlp", type:"single", persona:["hospital","security"], scored:true,
+    eyebrow:"Data in motion",
+    text:"Is PHI in transit restricted to encrypted channels, with DLP catching what slips?",
+    gapLabel:"No reliable DLP guard on PHI in transit",
+    options:[
+      {label:"Yes, enforced and monitored",value:"yes",s:1},
+      {label:"Encryption yes, DLP no",value:"partial",s:0},
+      {label:"No, or not sure",value:"no",s:0} ] },
+
+  { id:"evidence", type:"single", persona:["hospital","security"], scored:true,
+    eyebrow:"Proof",
+    text:"Could you hand an auditor or insurer your evidence within a day, without a scramble?",
+    gapLabel:"Evidence isn't audit-ready on short notice",
+    options:[
+      {label:"Yes, it's organized and current",value:"yes",s:1},
+      {label:"With a few days of effort",value:"days",s:0},
+      {label:"No, it would be a scramble",value:"no",s:0} ] },
+
+  // ---- security / IT branch ----
+  { id:"weak", type:"single", persona:["security"], research:true,
+    eyebrow:"Weakest link",
+    text:"Where is patient data most likely to leak in the environments you see?",
+    options:[
+      {label:"Email and messaging",value:"email"},
+      {label:"Offshore or remote staff",value:"offshore"},
+      {label:"Vendors and integrations",value:"vendors"},
+      {label:"Endpoints and removable media",value:"endpoints"} ] },
+
+  { id:"rest_s", type:"single", persona:["security"], scored:true,
+    eyebrow:"Data at rest",
+    text:"Is encryption at rest enforced across endpoints and removable media, with exceptions tracked?",
+    gapLabel:"Encryption-at-rest coverage has untracked exceptions",
+    options:[
+      {label:"Yes, enforced and tracked",value:"yes",s:1},
+      {label:"Enforced, exceptions not tracked",value:"partial",s:0},
+      {label:"No, or inconsistent",value:"no",s:0} ] },
+
+  { id:"access", type:"single", persona:["security"], scored:true,
+    eyebrow:"Access",
+    text:"Does remote access require VPN and multi-factor authentication?",
+    gapLabel:"Remote access isn't fully behind VPN + MFA",
+    options:[
+      {label:"Yes, both, everywhere",value:"yes",s:1},
+      {label:"MFA yes, VPN gaps",value:"partial",s:0},
+      {label:"No, or inconsistent",value:"no",s:0} ] },
+
+  { id:"ir", type:"single", persona:["security"], scored:true,
+    eyebrow:"Response",
+    text:"Is there an incident response plan the team could actually follow under pressure?",
+    gapLabel:"No incident response plan the team could truly follow",
+    options:[
+      {label:"Yes, tested",value:"yes",s:1},
+      {label:"Exists but untested",value:"untested",s:0},
+      {label:"No, or not sure",value:"no",s:0} ] },
+
+  // ---- vendor / business associate branch ----
+  { id:"asked", type:"single", persona:["vendor"], research:true,
+    eyebrow:"Market pressure",
+    text:"Have clients asked you to prove security (SOC 2, a security review, a questionnaire) before signing?",
+    options:[
+      {label:"Yes, and it's increasing",value:"yes_more"},
+      {label:"Once or twice",value:"sometimes"},
+      {label:"Not yet",value:"no"} ] },
+
+  { id:"lostdeal", type:"single", persona:["vendor"], research:true,
+    eyebrow:"The stakes",
+    text:"Has a security review ever slowed down or cost you a deal?",
+    options:[
+      {label:"Yes, we've lost or stalled deals over it",value:"yes"},
+      {label:"It's caused friction, not lost deals",value:"friction"},
+      {label:"No",value:"no"} ] },
+
+  { id:"baa_v", type:"single", persona:["vendor"], scored:true,
+    eyebrow:"Your obligations",
+    text:"Do you have signed BAAs in place with the clients whose patient data you handle?",
+    gapLabel:"Missing BAAs with clients whose data you handle",
+    options:[
+      {label:"Yes, all of them",value:"yes",s:1},
+      {label:"Most, not all",value:"most",s:0},
+      {label:"No, or not sure",value:"no",s:0} ] },
+
+  { id:"proof_v", type:"single", persona:["vendor"], scored:true,
+    eyebrow:"Readiness",
+    text:"Could you show a prospect real security evidence today, not just a promise?",
+    gapLabel:"No ready security evidence to show prospects",
+    options:[
+      {label:"Yes, it's ready to share",value:"yes",s:1},
+      {label:"Some of it, with effort",value:"some",s:0},
+      {label:"No, we'd have to build it",value:"no",s:0} ] },
+
+  // ---- open + contact (all) ----
+  { id:"open", type:"text", persona:"all", research:true, optional:true, multiline:true,
+    eyebrow:"In your words",
+    text:"What's the one privacy or compliance thing that would keep you up at night?",
+    help:"Optional. One sentence is plenty. This is the most useful answer you can give us." },
+
+  { id:"contact", type:"contact", persona:"all", optional:true,
+    eyebrow:"Your result",
+    text:"Want your tailored result and a copy by email?",
+    help:"Optional. Leave it blank to just see your result on screen. We never sell your information, and this is not a sales list." }
+];
+
+/* ---------------- engine ---------------- */
+const app=document.getElementById('app'), bar=document.getElementById('bar');
+const state={answers:{}, i:0, order:[]};
+
+function persona(){return state.answers.role;}
+function applies(q){return q.persona==='all' || (persona() && q.persona.includes(persona()));}
+function buildOrder(){ state.order = Q.filter(applies); }
+buildOrder();
+
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+function render(){
+  buildOrder();
+  const q=state.order[state.i];
+  const total=state.order.length;
+  bar.style.width=((state.i)/(total))*100+'%';
+  if(!q){return finish();}
+  const a=state.answers[q.id];
+  let body='';
+  if(q.type==='single'||q.type==='multi'){
+    body='<div class="opts" role="radiogroup" aria-label="'+esc(q.text)+'">'+
+      q.options.map(o=>{
+        const checked = q.type==='multi' ? (Array.isArray(a)&&a.includes(o.value)) : a===o.value;
+        return '<button class="opt '+(q.type==='multi'?'multi':'')+'" role="'+(q.type==='multi'?'checkbox':'radio')+'" aria-checked="'+(checked?'true':'false')+'" data-v="'+esc(o.value)+'"><span class="mark" aria-hidden="true"></span><span>'+esc(o.label)+'</span></button>';
+      }).join('')+'</div>';
+  } else if(q.type==='scale'){
+    const n=q.scale||5;
+    let btns='';for(let k=1;k<=n;k++){btns+='<button data-v="'+k+'" aria-pressed="'+(a==k?'true':'false')+'">'+k+'</button>';}
+    body='<div class="scale" role="group" aria-label="'+esc(q.text)+'">'+btns+'</div>'+
+      '<div class="scale-ends"><span>'+esc(q.ends[0])+'</span><span>'+esc(q.ends[1])+'</span></div>';
+  } else if(q.type==='text'){
+    body= q.multiline
+      ? '<textarea class="field" id="tf" placeholder="Type here...">'+esc(a||'')+'</textarea>'
+      : '<input class="field" id="tf" value="'+esc(a||'')+'" placeholder="Type here...">';
+  } else if(q.type==='contact'){
+    const c=a||{};
+    body='<input class="field" id="c_name" placeholder="Name (optional)" value="'+esc(c.name||'')+'" style="margin-bottom:12px">'+
+         '<input class="field" id="c_email" type="email" placeholder="Email (optional)" value="'+esc(c.email||'')+'" style="margin-bottom:12px">'+
+         '<input class="field" id="c_org" placeholder="Practice or company (optional)" value="'+esc(c.org||'')+'">'+
+         '<label class="consent"><input type="checkbox" id="c_ok" '+(c.ok?'checked':'')+'> I\'m okay with Privacute using my answers for research and sending my result. No spam, no selling data.</label>';
+  }
+  const helpBlock = q.help ? '<button class="qhelp-toggle" id="ht" aria-expanded="false">Why we ask &#9662;</button><div class="qhelp" id="hb" hidden>'+esc(q.help)+'</div>' : '';
+  const backBtn = state.i>0 ? '<button class="btn btn-ghost" id="back">&#8592; Back</button>' : '<span></span>';
+  const canSkip = q.optional || q.research;
+  const nextLabel = q.type==='contact' ? 'See my result' : (state.i===total-1?'Finish':'Continue');
+  app.className='step fade';
+  app.innerHTML=
+    '<p class="eyebrow">'+esc(q.eyebrow||'')+'</p>'+
+    '<p class="qcount">Question '+(state.i+1)+' of '+total+'</p>'+
+    '<h2 class="qtext">'+esc(q.text)+'</h2>'+
+    helpBlock+
+    body+
+    '<div class="nav">'+backBtn+
+      '<div style="display:flex;gap:14px;align-items:center">'+
+        (canSkip?'<button class="skip" id="skip">Skip</button>':'')+
+        '<button class="btn btn-primary" id="next" '+(hasAnswer(q)?'':'disabled')+'>'+nextLabel+'</button>'+
+      '</div>'+
+    '</div>'+
+    '<p class="reassure">No wrong answers. You can go back anytime.</p>';
+  wire(q);
+}
+
+function hasAnswer(q){
+  const a=state.answers[q.id];
+  if(q.optional) return true;
+  if(q.type==='multi') return Array.isArray(a)&&a.length>0;
+  if(q.type==='contact') return true;
+  return a!==undefined && a!==null && a!=='';
+}
+
+function wire(q){
+  const ht=document.getElementById('ht');
+  if(ht){ht.onclick=()=>{const hb=document.getElementById('hb');const open=hb.hasAttribute('hidden');if(open){hb.removeAttribute('hidden');}else{hb.setAttribute('hidden','');}ht.setAttribute('aria-expanded',open?'true':'false');};}
+  document.querySelectorAll('.opt').forEach(el=>{
+    el.onclick=()=>{
+      if(q.type==='multi'){
+        let arr=Array.isArray(state.answers[q.id])?state.answers[q.id].slice():[];
+        const v=el.dataset.v; arr.includes(v)?arr=arr.filter(x=>x!==v):arr.push(v);
+        state.answers[q.id]=arr; render();
+      } else {
+        state.answers[q.id]=el.dataset.v;
+        if(q.id==='role'){buildOrder();}
+        // auto-advance for single-choice for momentum
+        setTimeout(()=>{advance();},180);
+      }
+    };
+  });
+  document.querySelectorAll('.scale button').forEach(el=>{
+    el.onclick=()=>{state.answers[q.id]=el.dataset.v; setTimeout(advance,180);};
+  });
+  const tf=document.getElementById('tf');
+  if(tf){tf.oninput=()=>{state.answers[q.id]=tf.value; const n=document.getElementById('next'); if(n)n.disabled=!hasAnswer(q);};}
+  ['c_name','c_email','c_org','c_ok'].forEach(id=>{const e=document.getElementById(id);if(e)e.oninput=e.onchange=()=>{state.answers.contact={name:v('c_name'),email:v('c_email'),org:v('c_org'),ok:document.getElementById('c_ok').checked};};});
+  const nx=document.getElementById('next'); if(nx)nx.onclick=advance;
+  const bk=document.getElementById('back'); if(bk)bk.onclick=()=>{state.i=Math.max(0,state.i-1);render();};
+  const sk=document.getElementById('skip'); if(sk)sk.onclick=advance;
+}
+function v(id){const e=document.getElementById(id);return e?e.value:'';}
+function advance(){ const q=state.order[state.i]; if(!q.optional && !q.research && !hasAnswer(q))return; state.i++; render(); }
+
+/* ---------------- scoring + result ---------------- */
+function scoreData(){
+  const scored=state.order.filter(q=>q.scored);
+  let got=0, gaps=[];
+  scored.forEach(q=>{
+    const a=state.answers[q.id];
+    const opt=(q.options||[]).find(o=>o.value===a);
+    const s=opt?opt.s:0; got+=s;
+    if(s===0 && q.gapLabel) gaps.push(q.gapLabel);
+  });
+  const pct = scored.length? Math.round((got/scored.length)*100) : null;
+  return {pct, gaps, count:scored.length, got};
+}
+function bandFor(pct){
+  if(pct===null) return {cls:'strong',label:'Thanks for the read'};
+  if(pct>=80) return {cls:'strong',label:'Strong footing'};
+  if(pct>=45) return {cls:'mid',label:'Solid base, real gaps'};
+  return {cls:'low',label:'Meaningful exposure'};
+}
+/* mailto button so a respondent can reach out after seeing their score.
+   Prefilled with their band/score, still editable before they send. No
+   backend needed. Hidden entirely unless CONFIG.CONTACT_EMAIL is set. */
+function reachOutBtn(kind){
+  if(!CONFIG.CONTACT_EMAIL) return '';
+  const {pct}=scoreData();
+  const scoreBit = (pct===null?'':' My readiness signal came out at '+pct+'% ('+bandFor(pct).label+').');
+  const subject='Following up on my Privacy Pulse';
+  const body="Hi Privacute,\n\nI just finished the Privacy Pulse."+scoreBit+" I'd like to talk about getting our patient privacy audit-ready.\n\nThanks,";
+  const href='mailto:'+CONFIG.CONTACT_EMAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  return '<a class="btn '+(kind==='primary'?'btn-primary':'btn-ghost')+'" href="'+esc(href)+'" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px">Reach out to Privacute</a>';
+}
+
+function finish(){
+  bar.style.width='100%';
+  const {pct,gaps}=scoreData();
+  const band=bandFor(pct);
+  const p = persona()||'owner';
+  const intro = {
+    owner:"Here's where your practice stands, and what to look at first.",
+    manager:"Here's your read, and the gaps worth raising with the owner.",
+    hospital:"Here's your posture snapshot and the third-party gaps to prioritize.",
+    security:"Here's the technical read and where the exposure concentrates.",
+    vendor:"Here's how ready you are to prove security when a client asks."
+  }[p];
+  let meter='';
+  if(pct!==null){
+    meter='<div class="meter"><div class="meter-track"><div class="meter-fill" id="mf"></div></div></div>';
+  }
+  let gapList='';
+  if(gaps.length){
+    gapList='<h3 style="margin:24px 0 6px">Where to look first</h3><ul class="gaps">'+
+      gaps.slice(0,5).map((g,i)=>'<li><span class="g">'+(i+1)+'</span><span>'+esc(g)+'</span></li>').join('')+'</ul>';
+  } else if(pct!==null){
+    gapList='<p class="lead" style="margin-top:18px">No major gaps surfaced in what we asked. The work now is keeping your evidence current so this stays true.</p>';
+  }
+  app.className='step fade';
+  app.innerHTML=
+    '<span class="hero-badge">Your Privacy Pulse</span>'+
+    '<span class="band '+band.cls+'">'+band.label+'</span>'+
+    '<h2 class="qtext" style="margin-top:8px">'+esc(intro)+'</h2>'+
+    meter+
+    (pct!==null?'<p class="lead">Readiness signal: <strong>'+pct+'%</strong> of the basics we checked are in place.</p>':'')+
+    gapList+
+    '<div class="disclaimer">This is a self-check to show you where you stand, not a certification or legal advice, and not a substitute for the formal HIPAA risk analysis. Getting audit-ready and being independently certified are two separate steps.</div>'+
+    '<div class="nav">'+(reachOutBtn('ghost')||'<span></span>')+'<button class="btn btn-primary" id="done">'+ (CONFIG.ENDPOINT?'Send my answers':'Done') +'</button></div>';
+  if(pct!==null){requestAnimationFrame(()=>{const mf=document.getElementById('mf');if(mf)mf.style.width=pct+'%';});}
+  document.getElementById('done').onclick=submit;
+}
+
+function submit(){
+  submitToEndpoint();
+  app.className='step fade';
+  const c=state.answers.contact||{};
+  app.innerHTML=
+    '<span class="hero-badge">All set</span>'+
+    '<h2 class="qtext">Thank you. This genuinely helps.</h2>'+
+    '<p class="lead">'+((c.email&&c.ok)?'Your result is on its way to '+esc(c.email)+'. ':'')+'Every answer sharpens how Privacute helps practices protect patient privacy.</p>'+
+    '<div class="pills">'+
+      '<span class="pill"><span class="i">&#10003;</span> Answers recorded</span>'+
+      '<span class="pill"><span class="i">&#128274;</span> Never sold or shared</span>'+
+    '</div>'+
+    (reachOutBtn('primary')?'<p class="lead" style="margin:22px 0 12px">Want to talk it through? We\'re glad to help.</p>'+reachOutBtn('primary'):'')+
+    '<p class="footer" style="margin-top:24px">Patient privacy, made <span class="name">provable</span>.</p>';
+  bar.style.width='100%';
+}
+
+/* Sends the whole response to the Apps Script Web App, which appends a
+   row to your Google Sheet. Content-Type text/plain keeps it a "simple"
+   request so the browser skips the CORS preflight that Apps Script does
+   not answer. Fire and forget: the completion screen shows even if the
+   network call fails, so a respondent is never left hanging. */
+function submitToEndpoint(){
+  if(!CONFIG.ENDPOINT) return; // preview mode
+  const {pct,gaps}=scoreData();
+  const c=state.answers.contact||{};
+  const payload={
+    submittedAt:new Date().toISOString(),
+    persona:persona()||'',
+    readiness_pct:(pct===null?'':pct),
+    gaps:gaps||[], // gap labels, used to build the result email server-side; not stored in the sheet
+    name:c.name||'', email:c.email||'', org:c.org||'', consent:c.ok?'yes':'no',
+    answers:{}
+  };
+  Object.keys(state.answers).forEach(k=>{
+    if(k==='contact')return;
+    let val=state.answers[k]; if(Array.isArray(val))val=val.join('; ');
+    payload.answers[k]=val;
+  });
+  try{
+    fetch(CONFIG.ENDPOINT,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(payload)
+    }).catch(()=>{});
+  }catch(e){}
+}
+
+/* intro screen */
+function intro(){
+  app.className='step fade';
+  app.innerHTML=
+    '<span class="hero-badge">2 minutes · no wrong answers</span>'+
+    '<h1 class="qtext" style="font-size:calc(30px*var(--fs))">How safe is patient data, really?</h1>'+
+    '<p class="lead">A short, plain-language check-in about how patient information is protected where you work. It adapts to your role, so you only see what fits. At the end you get a tailored read on where you stand.</p>'+
+    '<div class="pills">'+
+      '<span class="pill"><span class="i">&#129504;</span> One question at a time</span>'+
+      '<span class="pill"><span class="i">&#9889;</span> Adapts to your role</span>'+
+      '<span class="pill"><span class="i">&#128200;</span> Instant tailored result</span>'+
+    '</div>'+
+    '<div class="nav"><span></span><button class="btn btn-primary" id="start">Start</button></div>'+
+    '<p class="reassure">You can skip any question and go back anytime.</p>';
+  document.getElementById('start').onclick=()=>{state.i=0;render();};
+  bar.style.width='0%';
+}
+
+/* accessibility controls */
+let big=false, calm=false;
+document.getElementById('txt').onclick=e=>{big=!big;document.documentElement.style.setProperty('--fs',big?'1.15':'1');e.currentTarget.setAttribute('aria-pressed',big);};
+document.getElementById('calm').onclick=e=>{calm=!calm;document.body.style.setProperty('scroll-behavior',calm?'auto':'');document.body.classList.toggle('calm',calm);e.currentTarget.setAttribute('aria-pressed',calm);
+  if(calm){const s=document.createElement('style');s.id='calmstyle';s.textContent='*{animation:none!important;transition:none!important}';document.head.appendChild(s);}else{const s=document.getElementById('calmstyle');if(s)s.remove();}};
+
+intro();
+</script>
+</body>
+</html>
