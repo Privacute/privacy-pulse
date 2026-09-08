@@ -58,7 +58,7 @@ Each row is one respondent. Sort or filter by `persona` and `trigger` to build y
 - **Add a new question:** give it an `id` in `index.html`, then add that same `id` to the `COLUMNS` list in `apps-script.gs` so it gets its own column.
 
 ## Updating and redeploying
-This deployment lives in the `braxton-privacute/privacy-pulse` repo and is served by GitHub Pages at https://braxton-privacute.github.io/privacy-pulse/. Pages rebuilds automatically on every push to `main`, so shipping a page change is just a commit and a push:
+This deployment lives in the `privacute/privacy-pulse` repo and is served by GitHub Pages at https://privacute.github.io/privacy-pulse/. Pages rebuilds automatically on every push to `main`, so shipping a page change is just a commit and a push:
 
 ```bash
 git add -A
