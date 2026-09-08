@@ -25,15 +25,14 @@ GitHub Pages serves `index.html`. When someone finishes, the page sends the answ
 8. Copy the **Web app URL**. It ends in `/exec`. Keep it.
 
 ### Part 2 - drop your URL into the survey
-9. Open `index.html` in any text editor. Near the top of the `<script>` block, find:
+9. Open `index.html` in any text editor. Near the top of the `<script>` block, find the `CONFIG` block. Paste your `/exec` URL into `ENDPOINT`, and optionally an address into `CONTACT_EMAIL` to switch on the "Reach out to Privacute" button on the result screen:
+   ```js
+   const CONFIG = {
+     ENDPOINT: "https://script.google.com/macros/s/AKfyc.../exec",
+     CONTACT_EMAIL: "hello@privacute.com"   // optional; leave "" to hide the button
+   };
    ```
-   const CONFIG = { ENDPOINT: "" };
-   ```
-   Paste your `/exec` URL between the quotes:
-   ```
-   const CONFIG = { ENDPOINT: "https://script.google.com/macros/s/AKfyc.../exec" };
-   ```
-   Save the file.
+   Save the file. `CONTACT_EMAIL` is visible in the public page source, so use an address you are fine publishing.
 
 ### Part 3 - publish on GitHub Pages
 10. Create a new **public** GitHub repository (for example `privacy-pulse`).
@@ -55,9 +54,22 @@ GitHub Pages serves `index.html`. When someone finishes, the page sends the answ
 Each row is one respondent. Sort or filter by `persona` and `trigger` to build your personas. `readiness_pct` is their live score. `open` is the free-text answer, usually the most useful column. Email and name are only present when someone opted in.
 
 ## Changing the survey later
-- **Edit questions or copy:** change `index.html` and re-upload. No redeploy of the script needed.
+- **Edit questions or copy:** change `index.html` and push (see "Updating and redeploying" below). No redeploy of the script needed.
 - **Add a new question:** give it an `id` in `index.html`, then add that same `id` to the `COLUMNS` list in `apps-script.gs` so it gets its own column.
-- **After editing the script:** Deploy > Manage deployments > edit (pencil) > Version: New version > Deploy. This keeps the same `/exec` URL. A brand-new deployment would give you a new URL that you would have to paste into `index.html` again.
+
+## Updating and redeploying
+This deployment lives in the `braxton-privacute/privacy-pulse` repo and is served by GitHub Pages at https://braxton-privacute.github.io/privacy-pulse/. Pages rebuilds automatically on every push to `main`, so shipping a page change is just a commit and a push:
+
+```bash
+git add -A
+git commit -m "Update survey copy"
+git push
+```
+
+Give it about a minute after the push, then hard-refresh the live URL (Pages caches briefly).
+
+- **Page changes** (copy, questions, colors, `CONFIG.ENDPOINT`, `CONFIG.CONTACT_EMAIL`): commit and push as above. Nothing else to do.
+- **Script changes** (`apps-script.gs`): the copy in this repo is for reference only. The collector that actually runs is the one pasted into the Google Sheet's Apps Script editor, so after editing you must paste it back there and redeploy: **Deploy > Manage deployments > edit (pencil) > Version: New version > Deploy**. That keeps the same `/exec` URL. If you added a new permission (for example the result email's `MailApp`), approve the prompt again or it will not take effect. A brand-new deployment mints a new `/exec` URL that you would have to paste back into `index.html`.
 
 ## Notes worth knowing
 - A public repo means anyone can read the page source, including the `/exec` URL. That is normal for this setup and fine: the endpoint only adds rows to your sheet. If you ever get spam rows, the simplest fix is to redeploy at a new URL, or add a shared secret check to the script (ask and I will add it).
