@@ -47,7 +47,7 @@ This path exists because two other options were ruled out, do not reopen them wi
 - **Submit:** `submitToEndpoint()` POSTs the payload (below) to `CONFIG.ENDPOINT`.
 
 ## Accessibility / neurodivergent design (do not regress these)
-One question per screen; visible progress bar; Back and Skip always available; no timers; everything optional except role; an A+ text-size toggle and a Calm mode that kills motion; `prefers-reduced-motion` honored; ARIA roles on options and scales; focus-visible outlines; large tap targets. If you refactor rendering, preserve all of the above.
+One question per screen; visible progress bar; Back and Skip always available; no timers; everything optional except role; `prefers-reduced-motion` honored (OS-level); ARIA roles on options and scales; focus-visible outlines; large tap targets. If you refactor rendering, preserve all of the above. Note: the manual A+ text-size toggle and Calm-mode button were removed from the top bar at the owner's request (2026-09-08); OS reduced-motion is still honored and users can browser-zoom for larger text. The `--fs` CSS var remains (now fixed at 1) so a size control can be reinstated later without other changes.
 
 ## Data contract
 Client sends (Content-Type `text/plain;charset=utf-8`, see gotcha below):

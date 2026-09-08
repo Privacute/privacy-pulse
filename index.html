@@ -38,10 +38,6 @@ h1,h2,h3,.display{font-family:var(--font-display);line-height:1.15;letter-spacin
 .brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;font-size:calc(20px*var(--fs));letter-spacing:-.02em}
 .brand .dot{width:26px;height:26px;border-radius:8px;background:var(--grad);box-shadow:var(--shadow)}
 .brand .name{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.a11y{display:flex;gap:6px;align-items:center}
-.a11y button{font-family:inherit;border:1px solid var(--line2);background:var(--white);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer;font-weight:600}
-.a11y button:hover{border-color:var(--violet-deep)}
-.a11y button[aria-pressed="true"]{background:var(--ink);color:var(--white);border-color:var(--ink)}
 
 /* progress */
 .progress{height:6px;background:rgba(20,20,25,.08)}
@@ -130,10 +126,6 @@ textarea.field{min-height:90px;resize:vertical}
 <header class="topbar">
   <div class="wrap">
     <div class="brand"><span class="dot" aria-hidden="true"></span><span>Priva<span class="name">cute</span></span></div>
-    <div class="a11y">
-      <button id="txt" aria-pressed="false" title="Larger text">A+</button>
-      <button id="calm" aria-pressed="false" title="Reduce movement">Calm mode</button>
-    </div>
   </div>
 </header>
 <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
@@ -608,11 +600,6 @@ function intro(){
   bar.style.width='0%';
 }
 
-/* accessibility controls */
-let big=false, calm=false;
-document.getElementById('txt').onclick=e=>{big=!big;document.documentElement.style.setProperty('--fs',big?'1.15':'1');e.currentTarget.setAttribute('aria-pressed',big);};
-document.getElementById('calm').onclick=e=>{calm=!calm;document.body.style.setProperty('scroll-behavior',calm?'auto':'');document.body.classList.toggle('calm',calm);e.currentTarget.setAttribute('aria-pressed',calm);
-  if(calm){const s=document.createElement('style');s.id='calmstyle';s.textContent='*{animation:none!important;transition:none!important}';document.head.appendChild(s);}else{const s=document.getElementById('calmstyle');if(s)s.remove();}};
 
 intro();
 </script>
