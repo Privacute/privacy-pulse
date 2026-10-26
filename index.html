@@ -76,6 +76,10 @@ main{padding:34px 0 90px}
 .field:focus-visible{outline:3px solid var(--violet-deep);outline-offset:1px;border-color:var(--violet-deep)}
 textarea.field{min-height:90px;resize:vertical}
 .consent{display:flex;gap:12px;align-items:flex-start;margin:16px 0 0;font-size:15px;color:var(--muted)}
+.notice{margin:20px 0 0;font-size:15px;color:var(--muted)}
+.notice summary{cursor:pointer;font-weight:600;color:var(--ink)}
+.notice p{margin:8px 0 0}
+.notice a{color:var(--violet-deep)}
 .consent input{margin-top:4px;width:20px;height:20px;accent-color:var(--violet-deep)}
 
 /* nav */
@@ -404,7 +408,8 @@ function render(){
     body='<input class="field" id="c_name" placeholder="Name (optional)" value="'+esc(c.name||'')+'" style="margin-bottom:12px">'+
          '<input class="field" id="c_email" type="email" placeholder="Email (optional)" value="'+esc(c.email||'')+'" style="margin-bottom:12px">'+
          '<input class="field" id="c_org" placeholder="Practice or company (optional)" value="'+esc(c.org||'')+'">'+
-         '<label class="consent"><input type="checkbox" id="c_ok" '+(c.ok?'checked':'')+'> I\'m okay with Privacute using my answers for research and sending my result. No spam, no selling data.</label>';
+         '<label class="consent"><input type="checkbox" id="c_ok" '+(c.ok?'checked':'')+'> Email my result to this address. No spam, no selling data.</label>'+
+         noticeHtml();
   }
   const helpBlock = q.help ? '<button class="qhelp-toggle" id="ht" aria-expanded="false">Why we ask &#9662;</button><div class="qhelp" id="hb" hidden>'+esc(q.help)+'</div>' : '';
   const backBtn = state.i>0 ? '<button class="btn btn-ghost" id="back">&#8592; Back</button>' : '<span></span>';
@@ -582,6 +587,17 @@ function submitToEndpoint(){
   }catch(e){}
 }
 
+/* privacy notice: shown on the intro and contact screens. Keep it in step
+   with what apps-script.gs actually stores and sends. */
+function noticeHtml(){
+  return '<details class="notice"><summary>How your answers are used</summary>'+
+    '<p>Every answer you give, your role, your score and the time you finish are saved to a Google Sheet in Privacute\'s Google account, sent there through Google Apps Script. That happens even if you leave the contact fields blank.</p>'+
+    '<p>If you add a name, email or practice, those are saved too. Your email is used to send your result only when you tick the box. Privacute uses the responses to understand how practices protect patient information and to improve its services. It does not sell them or add you to a mailing list.</p>'+
+    '<p>Do not type patient names or any other patient information into an answer.</p>'+
+    '<p>To have your response deleted, email <a href="mailto:'+esc(CONFIG.CONTACT_EMAIL||'info@privacute.com')+'">'+esc(CONFIG.CONTACT_EMAIL||'info@privacute.com')+'</a>.</p>'+
+    '</details>';
+}
+
 /* intro screen */
 function intro(){
   app.className='step fade';
@@ -595,7 +611,8 @@ function intro(){
       '<span class="pill"><span class="i">&#128200;</span> Instant tailored result</span>'+
     '</div>'+
     '<div class="nav"><span></span><button class="btn btn-primary" id="start">Start</button></div>'+
-    '<p class="reassure">You can skip any question and go back anytime.</p>';
+    '<p class="reassure">You can skip any question and go back anytime.</p>'+
+    noticeHtml();
   document.getElementById('start').onclick=()=>{state.i=0;render();};
   bar.style.width='0%';
 }
